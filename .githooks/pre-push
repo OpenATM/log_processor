@@ -1,0 +1,21 @@
+#!/bin/sh
+
+echo -e "\nExecute pre-push..."
+GIT_HOME=`git rev-parse --show-toplevel`
+FILTER=`cat $GIT_HOME/../filter/push_filter.dat`
+#no cmd in this line
+if [ "$?" = "0" ]; then
+	echo "filter=$FILTER"
+	FILTER_CONTENT=`git diff origin/master master|grep "$FILTER" -i -E --color`
+	if [ -z "$FILTER_CONTENT" ];then
+		echo -e "Check pass, can be pushed...\n"
+		exit 0
+	else
+		git diff origin/master master|grep "$FILTER" -i -E --color
+		echo -e "\nATTENTION!! Can not push!!!!\n"
+		exit 1
+	fi
+else
+	echo "Please add push_filter.dat..."
+	exit 1
+fi
